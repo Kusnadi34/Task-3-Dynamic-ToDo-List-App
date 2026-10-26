@@ -3,7 +3,7 @@
 A feature-rich, fully responsive dynamic To-Do application built with **Vanilla JavaScript**. This project was developed as part of the Frontend Developer Internship program at Auspify Technologies.
 
 ## 🚀 Live Demo
-*(Tambahkan link GitHub Pages Anda di sini nanti, contoh: [Live Demo](https://kusnadi34.github.io/Task-3-Dynamic-ToDo-List-App/))*
+*([Live Demo](https://kusnadi34.github.io/Task-3-Dynamic-ToDo-List-App/))*
 
 ## ✨ Features
 
