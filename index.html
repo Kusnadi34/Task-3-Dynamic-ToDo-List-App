@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="theme-color" content="#7A9B76">
+        <title>TaskFlow - Dynamic To-Do</title>
+        
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="style.css">
+        <link rel="icon" type="image/png" href="assets/icon.png">
+        <link rel="apple-touch-icon" href="assets/icon.png">
+    </head>
+
+    <body>
+
+        
+        <div class="mobile-backdrop" id="mobile-backdrop"></div>
+        <div class="app-layout">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <div class="brand">
+                    <h2>Menu</h2>
+                    <button class="icon-btn" id="btn-hamburger" title="Menu">☰</button>
+                    <button class="icon-btn close-sidebar-btn" id="btn-close-sidebar" title="Close">✕</button>
+                    <div class="dropdown-menu" id="hamburger-menu">
+                        <div class="dropdown-item" data-action="tasks">📋 Notes</div>
+                        <div class="dropdown-item" data-action="lists">📁 Lists</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item" data-action="profile">👤 Profile</div>
+                    </div>
+                </div>
+
+                <!-- hidden search hiddens for next development -->
+                <div class="menu-section" id="search-section" style="display:none;">
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" id="search-input" placeholder="Search">
+                    </div>
+                </div>
+
+                <nav class="nav-menu">
+                    <div class="menu-group">
+                        <span class="group-title collapsible" data-target="tasks-section">NOTES <span class="arrow">▼</span></span>
+                        <ul id="tasks-nav" data-section="tasks-section">
+                            <li data-view="upcoming" class="nav-item">» Upcoming <span class="badge" id="badge-upcoming">0</span></li>
+                            <li data-view="today" class="nav-item active">☰ Today <span class="badge" id="badge-today">0</span></li>
+                            <li data-view="deadline" class="nav-item">⏰ Deadline <span class="badge" id="badge-deadline">0</span></li>
+                            <li data-view="calendar" class="nav-item">📅 Calendar</li>
+                            <li data-view="journey" class="nav-item">📝 Journey</li>
+                        </ul>
+                    </div>
+
+                    <div class="menu-group">
+                        <span class="group-title collapsible" data-target="lists-section">LISTS <span class="arrow">▼</span></span>
+                        <ul id="lists-nav" data-section="lists-section"></ul>
+                        <div class="add-list" id="btn-add-list">+ Add New List</div>
+                    </div>
+
+                    <div class="menu-group">
+                        <span class="group-title collapsible" data-target="tags-section">TAGS <span class="arrow">▼</span></span>
+                        <div data-section="tags-section">
+                            <div class="tags-wrap" id="tags-nav"></div>
+                            <div class="add-tag" id="btn-add-tag">+ Add Tag</div>
+                        </div>
+                    </div>
+                </nav>
+
+                <div class="sidebar-bottom">
+                    <div class="bottom-item" id="btn-settings">⚙ Settings</div>
+                    <div class="bottom-item" id="btn-signout-side">↪ Sign out</div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <header class="topbar">
+                    <!-- only visible on mobile -->
+                    <button class="mobile-menu-btn" id="btn-mobile-menu" aria-label="Menu">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                            <path d="M3 6h18M3 12h18M3 18h18"/>
+                        </svg>
+                    </button>
+
+                    <h1 id="page-title">Today <span class="count" id="task-count">0</span></h1>
+
+                    <div class="topbar-actions">
+                        <button class="btn-outline hide-mobile" id="btn-add-event">Add Event</button>
+                        <button class="btn-pro hide-mobile" id="btn-clear-done">Clear Done</button>
+                        <button class="mobile-add-btn" id="btn-mobile-add" aria-label="Add Task">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                        </button>
+                        <div class="profile-wrapper">
+                            <button class="profile-btn" id="btn-profile" title="Profile">
+                                <span class="avatar" id="header-avatar">G</span>
+                            </button>
+                            <div class="dropdown-menu profile-menu" id="profile-menu">
+                                <div class="dropdown-header">
+                                    <div class="avatar-large" id="menu-avatar">G</div>
+                                    <div>
+                                        <strong id="menu-name">Guest</strong>
+                                        <small id="menu-email">Not signed in</small>
+                                    </div>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-item" data-action="profile">👤 My Profile</div>
+                                <div class="dropdown-item" data-action="settings">⚙ Settings</div>
+                                <div class="dropdown-item" data-action="toggle-theme">🌙 Dark Mode</div>
+                                <div class="dropdown-divider"></div>
+                                <div class="dropdown-item" data-action="login" id="menu-login">🔑 Log In</div>
+                                <div class="dropdown-item danger" data-action="logout" id="menu-logout" style="display:none;">↪ Log Out</div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                
+                <div class="view-container" id="view-container"></div>
+            </main>
+
+            <!-- Task Details -->
+            <aside class="task-details" id="task-details">
+                <div class="details-header">
+                    <button class="close-btn mobile-back" id="btn-back-details" title="Back">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <h3>Task:</h3>
+                    <button class="close-btn" id="close-details">×</button>
+                </div>
+                <div class="details-body">
+                    <input type="text" id="detail-title" class="detail-title-input" placeholder="Task title">
+                    <p class="detail-desc">Descriptions</p>
+                    <div class="detail-row">
+                        <span>List</span>
+                        <select id="detail-list"></select>
+                    </div>
+                    <div class="detail-row">
+                        <span>Date</span>
+                        <input type="date" id="detail-date">
+                    </div>
+                    <div class="detail-row">
+                        <span>⏰ Deadline</span>
+                        <input type="datetime-local" id="detail-deadline">
+                    </div>
+                    <div class="detail-row">
+                        <span>Tags</span>
+                        <div class="tags-wrap" id="detail-tags"></div>
+                    </div>
+                    <div class="subtasks">
+                        <h4>Subnotes:</h4>
+                        <div class="add-subtask" id="btn-add-subtask">+ Add New Subnotes</div>
+                        <div id="subtask-list"></div>
+                    </div>
+                </div>
+                <div class="details-footer">
+                    <button class="btn-danger" id="btn-delete-task">Delete Notes</button>
+                    <button class="btn-save" id="btn-save-task">Save changes</button>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Navigations bottom for Mobile Only -->
+        <nav class="bottom-nav" id="bottom-nav">
+            <button class="bottom-nav-item active" data-view="today">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                </svg>
+                <span>Today</span>
+            </button>
+            <button class="bottom-nav-item" data-view="upcoming">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                </svg>
+                <span>Upcoming</span>
+            </button>
+            <button class="bottom-nav-item" data-view="deadline">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                </svg>
+                <span>Deadline</span>
+            </button>
+            <button class="bottom-nav-item" data-view="calendar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                </svg>
+                <span>Calendar</span>
+            </button>
+            <button class="bottom-nav-item" data-view="journey">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/>
+                </svg>
+                <span>Journey</span>
+            </button>
+        </nav>
+
+        <!-- input Generics-->
+        <div class="modal-overlay" id="modal-overlay">
+            <div class="modal-box">
+                <h3 id="modal-title">Add Item</h3>
+                <input type="text" id="modal-input" placeholder="Enter name...">
+                <div class="modal-actions">
+                    <button class="btn-outline" id="modal-cancel">Cancel</button>
+                    <button class="btn-save" id="modal-confirm">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Settings -->
+        <div class="modal-overlay settings-overlay" id="settings-modal">
+            <div class="settings-box">
+                <div class="settings-header">
+                    <h2>⚙ Settings</h2>
+                    <button class="close-btn" id="settings-close">×</button>
+                </div>
+                <div class="settings-body">
+                    <div class="settings-tabs">
+                        <button class="settings-tab active" data-tab="general">General</button>
+                        <button class="settings-tab" data-tab="appearance">Appearance</button>
+                        <button class="settings-tab" data-tab="notifications">Notif</button>
+                        <button class="settings-tab" data-tab="data">Data</button>
+                        <button class="settings-tab" data-tab="about">About</button>
+                    </div>
+                    <div class="settings-content">
+                        <div class="settings-pane active" data-pane="general">
+                            <h3>General</h3>
+                            <div class="setting-item">
+                                <div>
+                                    <strong>Language</strong>
+                                    <p>Select your preferred language</p>
+                                </div>
+                                <select id="setting-language">
+                                    <option value="en">English</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <div>
+                                    <strong>Start of Week</strong>
+                                    <p>Choose which day your week starts</p>
+                                </div>
+                                <select id="setting-week-start">
+                                    <option value="sunday">Sunday</option>
+                                    <option value="monday">Monday</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="settings-pane" data-pane="appearance">
+                            <h3>Appearance</h3>
+                            <div class="setting-item">
+                                <div>
+                                    <strong>Dark Mode</strong>
+                                    <p>Toggle dark theme on/off</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="setting-dark-mode">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div>
+                                    <strong>Accent Color</strong>
+                                    <p>Choose your primary color</p>
+                                </div>
+                                <input type="color" id="setting-accent" value="#7A9B76">
+                            </div>
+                            <div class="setting-item">
+                                <div>
+                                    <strong>Compact Mode</strong>
+                                    <p>Reduce spacing between items</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="setting-compact">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="settings-pane" data-pane="notifications">
+                            <h3>Notifications</h3>
+                            <div class="setting-item">
+                                <div>
+                                    <strong>Task Reminders</strong>
+                                    <p>Get notified about upcoming tasks</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="setting-reminders" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="setting-item">
+                                <div>
+                                    <strong>Daily Summary</strong>
+                                    <p>Receive a daily recap of your tasks</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="setting-summary">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="settings-pane" data-pane="data">
+                            <h3>Data</h3>
+                            <div class="setting-item">
+                                <div>
+                                    <strong>Export Data</strong>
+                                    <p>Download your tasks as JSON</p>
+                                </div>
+                                <button class="btn-outline" id="btn-export">Export</button>
+                            </div>
+                            <div class="setting-item">
+                                <div>
+                                    <strong>Import Data</strong>
+                                    <p>Restore tasks from JSON file</p>
+                                </div>
+                                <button class="btn-outline" id="btn-import">Import</button>
+                                <input type="file" id="file-input" hidden accept=".json">
+                            </div>
+                            <div class="setting-item">
+                                <div>
+                                    <strong>Reset All Data</strong>
+                                    <p>Delete all tasks, lists, and notes</p>
+                                </div>
+                                <button class="btn-danger" id="btn-reset">Reset</button>
+                            </div>
+                        </div>
+                        <div class="settings-pane" data-pane="about">
+                            <h3>About</h3>
+                            <p style="margin-bottom: 8px;"><strong>TaskFlow v2.2</strong></p>
+                            <p style="color:var(--text-muted);">A dynamic To-Do list app built with vanilla JavaScript.</p>
+                            <p style="margin-top: 20px; color: var(--text-muted); font-size: 13px;">© 2026 Nana Kusnadi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Cards -->
+        <div class="modal-overlay" id="profile-modal">
+            <div class="modal-box profile-modal-box">
+                <h3>👤 My Profile</h3>
+                <div class="profile-info">
+                    <div class="avatar-xlarge" id="profile-avatar">G</div>
+                    <input type="text" id="profile-name" placeholder="Your name">
+                    <input type="email" id="profile-email" placeholder="Your email">
+                    <textarea id="profile-bio" placeholder="Bio..." rows="3"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-outline" id="profile-cancel">Cancel</button>
+                    <button class="btn-save" id="profile-save">Save Profile</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Cards-->
+        <div class="modal-overlay" id="login-modal">
+            <div class="modal-box login-modal-box">
+                <div class="login-header">
+                    <div class="login-icon">🔑</div>
+                    <h3>Welcome Back</h3>
+                    <p>Sign in to continue to TaskFlow</p>
+                </div>
+                <div class="login-form">
+                    <label>Email</label>
+                    <input type="email" id="login-email" placeholder="you@example.com">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••">
+                    <div class="login-remember">
+                        <input type="checkbox" id="login-remember">
+                        <label for="login-remember">Remember me</label>
+                    </div>
+                </div>
+                <div class="modal-actions login-actions">
+                    <button class="btn-outline" id="login-cancel">Cancel</button>
+                    <button class="btn-save" id="login-submit">Sign In</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons action floating for Mobile-->
+        <button class="fab" id="fab-add" aria-label="Add Task">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14"/>
+            </svg>
+        </button>
+
+        <script src="script.js"></script>
+    </body>
+</html>
